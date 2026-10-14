@@ -7,7 +7,7 @@
 // Sources: character_table / skill_table / battle_equip_table (zh_CN, as built into backups.json); PRTS 提丰 (备注 of 锐如兽牙,
 // 重如沼泥, 冰原秩序 and “永恒狩猎”); PRTS 分支特性信息 攻城手 ("可对空").
 // - Trait (攻城手) "优先攻击重量最重的敌人": target priority 'heaviest' (targeting.js); ranged physical arrows that hit air units,
-//   range 4-3 (as 早露, kits/ops/op-poca.js).
+//   range 4-3 (as 早露, kits/ops/chess_char_6_99-poca.js).
 // - Module SIE-X 自然的包容: trait "攻击重量较重（重量等级大于等于3）的敌人时，攻击力提升至115%" (the hidden module talent's atk_scale /
 //   value on 锐如兽牙's index): ×atk_scale on her attacks against an enemy of 重量等级 ≥ value (profile dmgMul); stage 2+ 锐如兽牙's
 //   numbers (12 % a stack, 10 s) come with the composed talent.

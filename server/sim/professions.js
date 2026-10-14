@@ -468,6 +468,8 @@ const onFrontLine = (unit, target) => {
 export const SUB = Object.freeze({
   // --- SNIPER
   fastshot: P({ priority: 'fly', dmgMul: (b, u, t) => (t.isFlying ? (u.profile.flyScale ?? 1) : 1) }),
+  // 攻城手: 优先攻击重量最重的敌人 — data targetPriority 'heaviest' (build-data 从特质文本推导)，可对空由特质文本推导
+  siegesniper: P({}),
   closerange: P({}),
   longrange: P({ priority: 'lowDef' }),
   aoesniper: P({ splashRadius: 1.1, projectile: 'bomb' }),

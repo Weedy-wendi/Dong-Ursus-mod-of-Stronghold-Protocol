@@ -437,7 +437,10 @@ test('爬行号·防护单元: shield = 凯瑟琳 max HP × max_shield_ratio on 
 
 test('every token of data/tokens.json spawns with data defaults and runs without content errors', REAL, () => {
   const raw = ds.raw.tokens && Object.keys(ds.raw.tokens).length ? ds.raw.tokens : {};
-  const ids = Object.keys(raw).filter((id) => id !== TOKEN_IDS.yanyou);
+  // yanyou: no generic kit (it is 炎's). 2026-10-12: the 打字机 joins the exception — its kit is owned by
+  // 鸿雪's preset kit (kits/ops/chess_char_4_99-bgsnow.js), not content/tokens.js; her coverage lives in
+  // kits_char_4_99 + feedback5-countdown-summons + the golden diy battles.
+  const ids = Object.keys(raw).filter((id) => id !== TOKEN_IDS.yanyou && id !== 'token_10026_bgsnow_subbow');
   assert.ok(ids.length >= 21);
   const h = makeBattle({ defs: { chess: { test_owner: summoner() }, enemies: { enemy_walker: walker({ atk: 50 }) } }, units: [{ chessId: 'test_owner', row: 12, col: 2 }], enemies: [{ key: 'enemy_walker', route: 0, count: 5, interval: 2 }], autoFinish: false, timeLimit: 60 });
   h.step();

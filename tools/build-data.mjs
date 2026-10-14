@@ -891,6 +891,7 @@ function classifyAttack(char, traitText) {
   let targetPriority = null;
   if (/优先攻击空中单位/.test(trait)) targetPriority = 'fly';
   else if (/防御力最低/.test(trait)) targetPriority = 'lowestDef';
+  else if (/重量最重/.test(trait)) targetPriority = 'heaviest';  // 攻城手 (siegesniper, 早露): targeting.js 'heaviest' — 2026-10-12
   return { dmgType, attackKind, projectile, canHitFly, targetPriority };
 }
 
@@ -3719,8 +3720,8 @@ function buildConfig(ctx, waves, stages, bands, chess, items) {
       chatCd: ac.constData?.chatCD ?? 1, chatBubble: ac.constData?.chatTime ?? 3, broadcastDelay: ac.constData?.broadcastBeginDelay ?? 1,
       enterSteps: (Array.isArray(ac.enterStepList) ? ac.enterStepList : Object.values(ac.enterStepList || {})).map((s) => ({ step: s.stepType, time: s.time, hint: s.hintTime, title: s.title })),
     },
-    bans: { FUNNY: { core: 0, addon: 1 }, NORMAL: { core: 3, addon: 4 }, HARD: { core: 3, addon: 4 }, ABYSS: { core: 3, addon: 4 }, TRAINING: { core: 0, addon: 0 },
-      rule: 'banned iff every bond of a visible non-DIY chess is in (drawn set D ∪ mode.inactiveBondIds); core = isCore bonds, addon = other bonds with weight > 0; uniform draw' },
+    bans: { FUNNY: { core: 0, addon: 1 }, NORMAL: { core: 5, addon: 5 }, HARD: { core: 5, addon: 5 }, ABYSS: { core: 5, addon: 5 }, TRAINING: { core: 0, addon: 0 },
+      rule: 'banned iff every bond of a visible non-DIY chess is in (drawn set D ∪ mode.inactiveBondIds); core = isCore bonds, addon = other bonds with weight > 0; uniform draw; 5+5 (owner decision 2026-10-13): the pool grew to 10 core bonds (东/乌萨斯), scaled to keep the average available operators at the 0.2.1 baseline of ~90' },
     bandDraft: { skipsPerPlayer: 1, order: 'random', duplicatesAllowed: true, timeoutBandId: 'band_bldsk' },
     titles: Object.values(act.playerTitleDataDict || {}).map((t) => ({ id: t.id, picId: t.picId, name: t.txt, ...(titleRules[t.id] || {}) })),
     titleRule: 'each player gets at most one title; each title is used at most once per match; assign by the category where the player ranks best relative to teammates [ASSUMED]',

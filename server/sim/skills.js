@@ -292,20 +292,33 @@ export class SkillRuntime {
     this.active = true;
     this._applyMods();
     this._call('onStart', { reason: 'passive' });
-    // A deploy-time passive (琳琅诗怀雅 S1 仗义疏财 / S2 “见面礼”: kind 'passive' with no duration) never goes through
-    // `activate()`, so the client saw no 'skill' event at all and its model never played the skill clip the manifest
-    // carries for it (player report follow-up: the 57 instant clips with no Begin / own Idle — 2 of them passives;
-    // 凯瑟琳 S1 is `kind: instant` in the sim and already casts). Fire the same bounded window an instant cast uses, so
-    // the actor plays that clip once and then goes back to its idle with attacks on the normal clip. A passive WITH a
-    // duration (缄默德克萨斯 S1–S3, 野鬃 S1, 伊内丝 S3, 耀骑士临光 S2) is left alone: the sim keeps it active until
-    // death, so "how long should its stance show" is a separate question.
-    if (!this.noSkill && !(this.duration > 0)) {
-      const b = this.battle;
-      const u = this.unit;
-      b._ev(['skill', u.id, 1]);
-      u.skillAnimUntil = b.time + SKILL_ANIM_WINDOW;
-      b.after(SKILL_ANIM_WINDOW, () => { if (u.alive) b._ev(['skill', u.id, 0]); }, { owner: u });
-    }
+    // The 'skill' animation window is NOT fired here: _startPassive runs inside Battle._deploy before the
+    // 'spawn' / 'deploy' events are queued, so the client had no view (first deploy) or a dead actor (a
+    // redeploy) to hand the event to — a deploy-time passive's skill stance never showed at all (麒麟R夜刀
+    // player report, 2026-10-14). deploy.js calls _firePassiveAnim right after the 'deploy' event instead.
+    // Window length: a spec.skillAnim (seconds) wins — a stance the kit wants held (Infinity-scale numbers
+    // allowed, bounded by the battle) — else the old 0.5 s instant window, and only for a passive WITHOUT a
+    // data duration (缄默德克萨斯 S1–S3, 野鬃 S1 … keep showing no stance, unchanged).
+    this._animWin = this.spec.skillAnim != null ? this.spec.skillAnim : (this.duration > 0 ? 0 : SKILL_ANIM_WINDOW);
+  }
+
+  /**
+   * The deploy-time passive's 'skill' anim window, fired by Battle._deploy after its 'deploy' event. The
+   * window belongs to THIS deployment: a raid / 不屈 redeploy landing inside it (or its scheduled off event
+   * outliving the deployment) must not cut the new stance short.
+   */
+  _firePassiveAnim() {
+    const win = this._animWin;
+    this._animWin = 0;
+    if (this.noSkill || !(win > 0)) return;
+    const b = this.battle;
+    const u = this.unit;
+    const dep = u.deploySeq;
+    b._ev(['skill', u.id, 1]);
+    u.skillAnimUntil = b.time + win;
+    b.after(win, () => {
+      if (u.alive && u.deployed && u.deploySeq === dep) b._ev(['skill', u.id, 0]);
+    }, { owner: u });
   }
 
   _applyMods() {

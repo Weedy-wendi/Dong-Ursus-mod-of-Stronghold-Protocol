@@ -2,9 +2,9 @@
  "meta": {
   "season": "act2autochess 卫戍协议：盟约 (下半 data, zh_CN Kengxxiao/ArknightsGameData)",
   "counts": {
-   "shopEntries": 59,
-   "chessEntries": 115,
-   "equipDistinct": 56,
+   "shopEntries": 63,
+   "chessEntries": 123,
+   "equipDistinct": 60,
    "magic": 3
   },
   "notes": "normal chess id *_a, golden *_b; params = flattened blackboard (duplicate keys suffixed _1). Descriptions stripped of rich-text; effectDescRaw keeps tags."
@@ -7161,6 +7161,10 @@
     6,
     2
    ]
-  }
+  },
+  {  "id": "chess_item_9_01_e_a",  "goldenId": "chess_item_9_01_e_b",  "trapId": "trap_9001_dongmask",  "name": "东国鬼面",  "nameEn": "Dong Mask",  "itemType": "EQUIP",  "tier": 2,  "shopLevelSortId": 13,  "hideInShop": false,  "price": 2,  "goldenPrice": 5,  "upgradeNum": 2,  "mergeable": true,  "trapDuration": -1,  "giveBondId": "dongShip",  "giveBondName": "东",  "canGiveBond": false,  "category": "ON_HIT",  "kind": "passive_counter",  "requiresBond": null,  "requiresBondName": null,  "family": null,  "rangeId": "0-1",  "rangeGrids": [   {    "row": 0,    "col": 0   }  ],  "flavor": "东国匠人打造的鬼面，戴上它的人会听见远方的涛声。\n“疼吗？疼就对了——刀快不快，就看这一口气。”",  "talentNotes": [],  "implFormula": "on skillStart: loseHp(carrier, carrier.hp × 10%/20%); during that skill window ATK% += 30%/45% (buff expires with the skill; passive/instant skills have no window and are skipped)" },
+  {  "id": "chess_item_9_02_e_a",  "goldenId": "chess_item_9_02_e_b",  "trapId": "trap_9002_canyin",  "name": "残心一闪",  "nameEn": "Zanshin Flash",  "itemType": "EQUIP",  "tier": 6,  "shopLevelSortId": 14,  "hideInShop": false,  "price": 4,  "goldenPrice": 5,  "upgradeNum": 2,  "mergeable": true,  "trapDuration": -1,  "giveBondId": null,  "giveBondName": null,  "canGiveBond": false,  "category": "BOND_SIGNATURE",  "kind": "passive",  "requiresBond": null,  "requiresBondName": null,  "family": null,  "rangeId": "0-1",  "rangeGrids": [   {    "row": 0,    "col": 0   }  ],  "flavor": "斩击落定之后的静止，才是剑士最锋利的瞬间。\n“残心不乱，一闪足矣。”",  "talentNotes": [],  "implFormula": "ATK% += 40%/60%; [【Dong】 member] each physical/arts hit retypes to 弱点伤害 (weaknessRetype); [with 东国鬼面 carried] once per battle, the first time HP < 50%: gain a shield of 50% max HP" },
+  {  "id": "chess_item_9_03_e_a",  "goldenId": "chess_item_9_03_e_b",  "trapId": "trap_9003_junliang",  "name": "乌萨斯军粮",  "nameEn": "Ursus Ration",  "itemType": "EQUIP",  "tier": 3,  "shopLevelSortId": 15,  "hideInShop": false,  "price": 2,  "goldenPrice": 5,  "upgradeNum": 2,  "mergeable": true,  "trapDuration": -1,  "giveBondId": "ursusShip",  "giveBondName": "乌萨斯",  "canGiveBond": false,  "category": "SURVIVAL",  "kind": "passive",  "requiresBond": null,  "requiresBondName": null,  "family": null,  "rangeId": "0-1",  "rangeGrids": [   {    "row": 0,    "col": 0   }  ],  "flavor": "乌萨斯行军口粮的铁皮罐，打开时总带着一股凛冽的风。\n“吃完了，就该上路了。”",  "talentNotes": [],  "implFormula": "HP% += 25%/50%; every 5s heal the carrier for 4%/5% of max HP" },
+  {  "id": "chess_item_9_04_e_a",  "goldenId": "chess_item_9_04_e_b",  "trapId": "trap_9004_roar",  "name": "冰原咆哮",  "nameEn": "Tundra Roar",  "itemType": "EQUIP",  "tier": 6,  "shopLevelSortId": 16,  "hideInShop": false,  "price": 4,  "goldenPrice": 5,  "upgradeNum": 2,  "mergeable": true,  "trapDuration": -1,  "giveBondId": null,  "giveBondName": null,  "canGiveBond": false,  "category": "BOND_SIGNATURE",  "kind": "passive",  "requiresBond": null,  "requiresBondName": null,  "family": null,  "rangeId": "0-1",  "rangeGrids": [   {    "row": 0,    "col": 0   }  ],  "flavor": "风雪吹过乌萨斯荒原的声音，被乌萨斯人称作大地的咆哮。\n“雪停之前，没有谁能让我们低头。”",  "talentNotes": [],  "implFormula": "ATK% += 45%/65%; [【Ursus】 member] ATK% += 4%/6% per other deployed 【Ursus】 member on the field (incl. 军粮转籍 / 同构体 grants), capped at 20%/30% (30%/45% with 乌萨斯军粮 carried); re-read every 0.5s and on deploy" }
  ]
 }

@@ -274,7 +274,7 @@ export default {
       },
       talents: [
         // 工程蓄水炮 (and 蓄水炮强化, the cannon's own talent): her cannon pieces run the cannon's kit — set up here, before the
-        // battle starts (Battle._setupUnit with a kit, as op-bgsnow.js does for its 打字机)
+        // battle starts (Battle._setupUnit with a kit, as chess_char_4_99-bgsnow.js does for its 打字机)
         { install(battle, unit) {
           for (const t of battle.allyUnits) {
             if (t.kind !== 'token' || t.defId !== CANNON || t.ownerUnit !== unit || t.alive || t.deployed) continue;

@@ -87,13 +87,13 @@ test('every chess, 自选 form and stand-in form: the raw keyframes plus every p
     n++;
     if (Object.keys(steps(c.charId)).length) withSteps++;
   }
-  assert.equal(n, 258);
+  assert.equal(n, 284);  // 2026-10-13: 东扩展 +4 棋子记录（白雪/吉星/嵯峨/麒麟R夜刀；2026-10-12: +10）
   assert.ok(withSteps >= 220, `chess with potential steps: ${withSteps}`);
   let forms = 0;
   for (const [charId, u] of Object.entries(backups.units)) {
     for (const f of Object.values(u.forms)) { check(`${charId}@${f.status.phase}/${f.status.level}`, charId, f.status, f.stats); forms++; }
   }
-  assert.equal(forms, 259);
+  assert.equal(forms, 241);  // 2026-10-13: 嵯峨/白雪等转 PRESET 后备份表单数变化（2026-10-12: 早露/维伊/鸿雪 left the units）
   // the 原型干员 stand-ins have no potential ranks: their numbers are the plain keyframes
   for (const id of ['char_600_cpione', 'char_602_cdfend', 'char_608_acpion', 'char_617_sharp2']) assert.equal((CT[id].potentialRanks || []).length, 0, id);
 });

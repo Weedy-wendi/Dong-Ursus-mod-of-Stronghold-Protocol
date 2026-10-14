@@ -1,46 +1,12 @@
-// server/sim/content/kits/ops/op-veen.js — 维伊 (char_4226_veen) 自选 operator kit: 6★ 秘术师 (术师), an owned-6★ pick of the
-// tier-5 and tier-6 自选 slots; every skill, both talents, the trait and the module (MSC-Y) at every form.
-// Kit contract and the 自选 rules: ../README.md ("How to add an operator (自选)").
-//
-// Forms (data/backups.json units.char_4226_veen, the DIY slot statuses): normal = E2 Lv1, skills at rank 4, no module;
-// elite = E2 Lv60, rank 7, MSC-Y at stage 1 (tier 5) or 3 (tier 6). Full potential (the owner's decision of 2026-10-07).
-// Sources: character_table / skill_table / battle_equip_table (zh_CN, as built into backups.json) and PRTS 维伊 (the 备注
-// quoted below).
-// - Trait (秘术师) "攻击造成法术伤害，在找不到攻击目标时可以将攻击能量储存起来之后一齐发射" (ranged arts, hits air units,
-//   targetable by ground enemies). PRTS 分支特性信息 秘术师: "能量储存与攻击占用相同的攻击间隔：在进行攻击判定时，若范围内存在
-//   有效目标，则进行普通攻击；若无有效目标且能量储存数未满，则改为储存一份攻击能量（属于攻击行为）" — when her attack is ready
-//   and she has no valid target she stores one energy and her attack interval starts again (the shared 秘术师 profile,
-//   professions.js installMystic, with this kit's `storeEnergy`); the energies fly with her next attack, at its target
-//   ("由储存能量形成的弹道造成攻击力100%的法术普通伤害").
-//   T1 “在挥刀之前” "特性储存的能量达到3个时，合成为1个转置能量（至多储存等同于9倍的能量）" (trait bb merge_cnt 3, times 9):
-//   3 stored make 1 转置能量, at most times / merge_cnt of those, then no more storing (备注 "转置能量数量达到上限时，停止储存
-//   攻击能量"); a 转置能量 hits for merge_cnt × ATK (备注 "攻击力300%的法术普通伤害"). Every shot uses the ATK it left with
-//   (备注 "所有攻击、储存能量、转置能量的弹道均使用脱手时的缓存攻击力"), released 转置能量 → main attack → stored energies (S2
-//   备注 "弹道创建顺序"); one volley flies to one target and lands at once, so the kit resolves all its hits as the main bolt
-//   lands (the engine's own hit makes none: `hitsFn` 0), with that attack's attackId, the later ones only on a target still
-//   alive. [ASSUMED] a redeployment holds no energy.
-// - T1 “在挥刀之前” "拥有转置能量时攻击力+10%，未拥有转置能量时攻击速度+15" (full potential: ATK +12 %; bb atk / attack_speed):
-//   two toggles on her stored state (checked every tick — the 备注's "攻击力加成失效存在短暂延迟": the volley that spends the
-//   转置能量 keeps it).
-// - T2 战争技艺 "攻击和储存的能量使目标在5秒内每秒受到90点法术伤害（至多叠加3次，发射转置能量可以叠加3次），维伊不以该效果影响的
-//   敌人为攻击目标" (bb attack@duration / attack@value / attack@max_stack_cnt; MSC-Y stage 3: 120 / 4): each hit adds 1
-//   stack (a 转置能量 3, an S3 bounce 1 — S3 备注 "相当于一发储存能量"), each stack attack@value arts per second, the 5 s
-//   restarting with every stack [ASSUMED]; she never picks a marked enemy (canAttack / beforeAttack, as 深靛 skips bound
-//   enemies — with only marked enemies in range she stores energy).
-// - MSC-Y “军械库” "拥有已储存的攻击能量时，攻击速度+30" (hidden module talent attack_speed): while she holds any energy.
-// - S1 “自呼号生发” (AUTO, 18 s): ASPD +attack_speed — an AUTO skill acting on herself fires at full SP (the owner's rule,
-//   kits/README.md checklist 5: `trigger: 'SP_FULL'`).
-// - S2 “以鲜血洗去” (MANUAL, 28 s, data DEFAULT): attack interval base_attack_time (a flat −0.5 s on 3.0 s); every released
-//   main attack or stored energy adds a stack (a 转置能量 3), at most …max_stack_cnt: ATK +…atk and ASPD +…attack_speed each,
-//   until the skill ends; a shot leaving later in the same volley already has the stacks of those before it (备注).
-// - S3 “用赤铁铭记” (MANUAL, 21 / 18 bullets, data DEFAULT): ASPD +attack_speed; 备注 "技能期间发射的储存能量与转置能量不会
-//   产生伤害，维伊仅在每次攻击时根据当前储存能量与转置能量消耗相应数量的弹药（不考虑是否足够），并令本次攻击获得相应弹射次数":
-//   an attack spends 1 bullet per stored energy and merge_cnt per 转置能量 (none without) and its main hit
-//   (attack@base_atk_scale × ATK) bounces that many times, every 0.5 s within 1.7 tiles (备注 "弹射间隔0.5，弹射半径1.7"),
-//   preferring an enemy not hit yet by it, else another one, else the same (text "优先不同目标" [ASSUMED order]), each
-//   attack@bounce_atk_scale × the cached ATK arts. The skill ends when the bullets run out.
+// server/sim/content/kits/ops/chess_char_5_99-veen.js — 维伊 (char_4226_veen) kit, tier 5 (自定义, 2026-10-12).
+// Kit contract and rules: ../README.md. 机制与自选 kit op-veen.js（同一干员的 DIY 版）逐条同源，仅按预设棋子契约
+// 改写；op-veen.js 于本批退役（维伊转预设棋）。形态：普通 _a = E2 Lv1 / rank 4 / 无模组；精锐 _b = E2 Lv55 /
+// rank 7 / MSC-Y 军械库 stage 1（tier 5）。默认技能 S3（chess.json defaultSkillIndex 2）。
+// 数值全部来自官方数据表 blackboard；PRTS 维伊 备注（能量储存/转置能量/战争技艺/S2 S3 细则）见 op-veen.js 头注存档。
+//   - 干员自身效果【采集单第 8 项】奥术共鸣（garrison_985）：【乌萨斯】+【奥术】**已激活**盟约层数每合计满 3 层 →
+//     攻击力 +1%（普通）/ +2%（精锐）；未激活的不纳入统计（2026-10-13 用户修订，0.5s 周期重读）。
 
-import { num, talentBb, moduleBb, traitBb, skillRec, batMod, toggleBuff } from '../shared/tier1.js';
+import { num, up, talentBb, moduleBb, traitBb, skillRec, batMod, toggleBuff } from '../shared/tier1.js';
 import { canTargetEnemy, sortEnemyTargets } from '../../../targeting.js';
 import { hypot } from '../../../detmath.js';
 
@@ -52,6 +18,10 @@ const ANY = Object.freeze({ canHitFly: true });
 const BOUNCE_IV = 0.5;
 const BOUNCE_R = 1.7;
 const S2_STACK = 'veen:s2stack';
+
+/** 干员自身效果（奥术共鸣）：读的盟约与每 3 层的攻击力加成（0.5s 周期重读）。 */
+const RESONANCE_BONDS = ['ursusShip', 'arcaneShip'];
+const RESONANCE_KEY = 'talent:veen:resonance';
 
 const bbOf = (chess, id) => skillRec(chess, id)?.bb ?? {};
 const warKey = (unit) => `veen:war:${unit.id}`;
@@ -71,7 +41,7 @@ function validTargets(battle, unit, prof) {
 }
 
 export default {
-  char_4226_veen: (bb, chess) => {
+  chess_char_5_99_a: (bb, chess) => {
     const t0 = talentBb(chess, 0);
     const t1 = talentBb(chess, 1);
     const tb = traitBb(chess);
@@ -144,7 +114,26 @@ export default {
       for (const p of rec.post) { if (!victim.alive) return; hitOnce(battle, unit, victim, p.atk, p.scale, p.stacks, attackId, isSkill); }
     }
 
+    const s3Spec = {
+      kind: 'ammo',
+      ammo: num(b3['attack@trigger_time'], 1),
+      mods: { aspd: num(b3.attack_speed) },
+      // bullets: 1 per stored energy, merge_cnt per 转置能量 the attack released (none without)
+      onAttack(ctx) {
+        ctx.noAmmo = true;
+        const { battle, unit, skill } = ctx;
+        const v = stateOf(unit);
+        const n = v.use;
+        v.use = 0;
+        for (let i = 0; i < n && skill.active; i++) {
+          skill.ammoLeft--;
+          battle.emit('ammoUsed', { unit, left: skill.ammoLeft, skill });
+          if (skill.ammoLeft <= 0) skill.end('ammo');
+        }
+      },
+    };
     return {
+      skill: s3Spec,   // 默认技能（S3）只写顶层 skill
       trait: {
         hitsFn: () => 0,   // the volley's hits are the kit's (land)
         onEachHit(battle, unit, victim, hc) { if (hc.kind === 'main' && victim && victim.side === 'enemy') land(battle, unit, victim, hc.attackId, !!hc.isSkill); },
@@ -172,24 +161,6 @@ export default {
           onStart({ battle, unit }) { stateOf(unit).k = 0; battle.removeBuff(unit, S2_STACK); },
           onEnd({ battle, unit }) { stateOf(unit).k = 0; battle.removeBuff(unit, S2_STACK); },
         },
-        [S3]: {
-          kind: 'ammo',
-          ammo: num(b3['attack@trigger_time'], 1),
-          mods: { aspd: num(b3.attack_speed) },
-          // bullets: 1 per stored energy, merge_cnt per 转置能量 the attack released (none without)
-          onAttack(ctx) {
-            ctx.noAmmo = true;
-            const { battle, unit, skill } = ctx;
-            const v = stateOf(unit);
-            const n = v.use;
-            v.use = 0;
-            for (let i = 0; i < n && skill.active; i++) {
-              skill.ammoLeft--;
-              battle.emit('ammoUsed', { unit, left: skill.ammoLeft, skill });
-              if (skill.ammoLeft <= 0) skill.end('ammo');
-            }
-          },
-        },
       },
       talents: [
         { install(battle, unit) { // “在挥刀之前”: ATK while holding a 转置能量, ASPD while holding none
@@ -208,6 +179,25 @@ export default {
         } },
       ],
       install(battle, unit) {
+        // ---- 干员自身效果：奥术共鸣（无条件安装）----
+        // 【乌萨斯】+【奥术】**已激活**盟约层数合计每满 3 层 → 攻击力 +1%/+2%（未激活的不纳入，2026-10-13 用户修订）。
+        const resonance = chess?.isGolden ? 0.02 : 0.01;
+        battle.every(0.5, () => {
+          if (!up(unit)) return;
+          const ps = battle.getPlayer?.(unit.ownerId);
+          if (!ps) return;
+          let total = 0;
+          for (const id of RESONANCE_BONDS) {
+            const bond = ps.bonds?.[id];
+            if (bond?.active) total += Math.max(0, num(bond.layers, 0));
+          }
+          const atkPct = Math.floor(total / 3) * resonance;
+          const cur = unit.findBuff(RESONANCE_KEY);
+          if (!(atkPct > 0)) { if (cur) battle.removeBuff(unit, cur); return; }
+          if (!cur || cur.mods?.atkPct !== atkPct) {
+            battle.addBuff(unit, { key: RESONANCE_KEY, persist: true, allowDead: true, refresh: 'replace', mods: { atkPct }, tags: ['talent'] });
+          }
+        }, { owner: unit, immediate: true });
         // MSC-Y: ASPD while she holds stored energy
         const msc = num(hidden.attack_speed);
         if (msc) toggleBuff(battle, unit, 'trait:veen:stored', () => { const v = stateOf(unit); return v.s + v.t > 0; }, { aspd: msc });

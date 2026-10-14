@@ -260,6 +260,9 @@ test('deleting removed files: never through a symlink, never a folder, never a f
     try {
       fs.symlinkSync(path.join(outside, 'x.js'), path.join(dir, 'server', 'link.js'));
       fs.symlinkSync(outside, path.join(dir, 'linked'), 'dir');
+      // some Windows setups (sandboxed FS) report success but create nothing — verify before trusting them
+      links = [path.join(dir, 'server', 'link.js'), path.join(dir, 'linked')]
+        .every((p) => { try { return fs.lstatSync(p).isSymbolicLink(); } catch { return false; } });
     } catch { links = false; } // Windows without the symlink privilege
     const r = deleteRemoved(dir, [
       { path: 'server/link.js', sha256: [sha('old')] },

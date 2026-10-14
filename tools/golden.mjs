@@ -730,6 +730,11 @@ export function matchScenarios() {
   // that fielded 推进之王: a second companion carries the full shop → deployment → battle path again (seeds 1–30 probed;
   // 3 fields the operator kit at rounds 5 and 6). Seed 5 stays as the outcome regression it now is.
   out.push({ id: 'coop2-NORMAL-3-coverage-diy', mode: 'coop', difficulty: 'NORMAL', bots: 1, seed: 3, human: { diy: MATCH_DIY, shopLevel: 5 } });
+  // 乌萨斯第二批 (2026-10-12, 卡池 +5) 分流了 seeds 3/5 的草稿流: seeds 1–300 probed, 26 fields 推进之王 again.
+  out.push({ id: 'coop2-NORMAL-26-coverage-diy', mode: 'coop', difficulty: 'NORMAL', bots: 1, seed: 26, human: { diy: MATCH_DIY, shopLevel: 5 } });
+  // 麒麟R夜刀时序修订 (2026-10-13: 部署前摇 + S1 六连击按帧排布 + frontKey 修复使 S2 乱舞真正造成伤害)
+  // 再次分流了 seed 26 的草稿流: seeds 27–300 probed, 67 fields 推进之王 (rounds 2–6).
+  out.push({ id: 'coop2-NORMAL-67-coverage-diy', mode: 'coop', difficulty: 'NORMAL', bots: 1, seed: 67, human: { diy: MATCH_DIY, shopLevel: 5 } });
   const humanAbout = (h) => (h.notOwned ? ` + 1 human seat (AI 托管) without ${h.notOwned.length} operators (补位 stand-ins)`
     : ` + 1 human seat (AI 托管) with ${Object.keys(h.diy || {}).length} 自选 picks${h.shopLevel ? ` and its 调度中心 at level ${h.shopLevel} from the first prep` : ''}`);
   return out.map((m) => ({ ...m, family: 'matches', kind: 'match', about: `${m.mode} ${m.difficulty}, ${m.bots} bot seat(s)${m.human ? humanAbout(m.human) : ''}, seed ${m.seed}${m.clientCombat === false ? ', server-run combat' : ''}${m.boost ? `, LP ${m.boost.lp} and ${m.boost.layers} layers per bond from the first prep` : ''}` }));

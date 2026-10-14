@@ -13,7 +13,7 @@ test('co-op pool doubles the measured single-player capacities; only visible, un
   const pool = new SharedPool(gd, { banned: [] });
   const caps = { 1: 12, 2: 14, 3: 18, 4: 16, 5: 8, 6: 5 };
   assert.equal(pool.entries.size, gd.visibleChess.length);
-  assert.equal(pool.entries.size, 113);
+  assert.equal(pool.entries.size, 125);
   for (const [id, e] of pool.entries) {
     const expect = 2 * (DATA.config.economy.poolCopiesOverrides[id] ?? caps[e.tier]);
     assert.equal(e.cap, expect, id);
@@ -22,7 +22,7 @@ test('co-op pool doubles the measured single-player capacities; only visible, un
   }
   const banned = [gd.visibleChess[0], gd.visibleChess[5]];
   const p2 = new SharedPool(gd, { banned });
-  assert.equal(p2.entries.size, 111);
+  assert.equal(p2.entries.size, 123);  // 125 − 2 banned (2026-10-13: 东扩展 → 125 visible)
   assert.ok(!p2.has(banned[0]) && p2.left(banned[0]) === 0 && p2.take(banned[0]) === 0);
 });
 
@@ -59,14 +59,14 @@ test('odds sanity: level L rolls only tiers ≤ L; level 1 only tier 1; shares �
     const shares = pool.tierShares(level);
     for (const [t, n] of Object.entries(seen)) assert.ok(Math.abs(n / 4000 - shares[t]) < 0.035, `L${level} T${t} ${n / 4000} vs ${shares[t]}`);
   }
-  // research table (full pools, no bans): L6 ≈ 14.0 / 17.4 / 25.0 / 25.7 / 11.1 / 6.9 %
+  // research table (full pools, no bans): L6 ≈ 14.0 / 17.4 / 25.0 / 25.7 / 11.1 / 6.9 % — our pool keeps drifting
+  // as custom chess joins (2026-10-11 +3, 2026-10-12 +5, 2026-10-13 东扩展 +4, 2026-10-14 白雪 t3→t2); measured now 12.15 / 16.69 / 26.44 / 25.63 / 11.75 / 7.34 %
   const s6 = pool.tierShares(6);
-  const want = { 1: 0.14, 2: 0.174, 3: 0.25, 4: 0.257, 5: 0.111, 6: 0.069 };
-  for (const t of Object.keys(want)) assert.ok(Math.abs(s6[t] - want[t]) < 0.01, `T${t} ${s6[t]}`);
+  const want = { 1: 0.1215, 2: 0.1669, 3: 0.2644, 4: 0.2563, 5: 0.1175, 6: 0.0734 };
+  for (const t of Object.keys(want)) assert.ok(Math.abs(s6[t] - want[t]) < 0.005, `T${t} ${s6[t]}`);
   const s2 = pool.tierShares(2);
-  // 缠丸 adds one tier-2 chess (visible tier 2: 17 → 18), so the copy-weighted L2 split shifts slightly; L6 above stays
-  // within its tolerance (measured 0.1339 / 0.1737 / 0.2517 / 0.2590 / 0.1118 / 0.0699).
-  assert.ok(Math.abs(s2[1] - 0.4354) < 0.01 && Math.abs(s2[2] - 0.5646) < 0.01);
+  // 白雪 t3→t2 (2026-10-14) 挪动 copy-weighted L2 split（measured 0.4213 / 0.5787）
+  assert.ok(Math.abs(s2[1] - 0.4213) < 0.01 && Math.abs(s2[2] - 0.5787) < 0.01);
 });
 
 test('rolls are copy-weighted: an exhausted chess never rolls; tier/filter options work', () => {
@@ -109,7 +109,7 @@ test('effect-only items are never shop items: not in shopItemsByTier, never in t
   assert.equal(DATA.items.chess_item_1_01_e_a.shopExcluded, false, 'the plain 维式重锤 is sold');
   const gd = gdOf();
   const listed = new Set(Object.values(gd.shopItemsByTier).flat());
-  assert.equal(listed.size, 51, '56 normal equipment − 5 effect-only');
+  assert.equal(listed.size, 55, '63 normal equipment − 5 effect-only − 3 hidden (神秘顾客/画卷/教鞭)');
   for (const id of EFFECT_ONLY) assert.ok(!listed.has(id), `${id} not a shop item`);
   assert.ok(listed.has('chess_item_1_01_e_a'));
   // the shop item slot at every level
@@ -137,8 +137,8 @@ test('维多利亚 25-layer reward and 洛洛的定制品: the 4 special 维式�
   m.dispose();
 });
 
-test('per-match disabled bonds: 3 core + 4 add-on (NORMAL+), FUNNY static + 0 + 1; weight-0 never drawn; subset ban rule', () => {
-  for (const [modeId, core, addon] of [['mode_multi_hard', 3, 4], ['mode_single_abyss', 3, 4], ['mode_multi_funny', 0, 1], ['mode_single_normal', 3, 4]]) {
+test('per-match disabled bonds: 5 core + 5 add-on (NORMAL+), FUNNY static + 0 + 1; weight-0 never drawn; subset ban rule', () => {
+  for (const [modeId, core, addon] of [['mode_multi_hard', 5, 5], ['mode_single_abyss', 5, 5], ['mode_multi_funny', 0, 1], ['mode_single_normal', 5, 5]]) {
     const gd = new GameData(DATA, modeId);
     for (let seed = 1; seed <= 20; seed++) {
       const { drawn, staticOff, banned } = drawDisabledBonds(gd, createRng(seed));
@@ -165,10 +165,10 @@ test('per-match disabled bonds: 3 core + 4 add-on (NORMAL+), FUNNY static + 0 + 
 test('the match pool excludes banned chess; m.public lists disabled bonds and banned chess', () => {
   const h = makeMatch({ mode: 'coop', difficulty: 'HARD', humans: 1, bots: 1, seed: 3 }).start();
   const pub = h.lastBc('m.public');
-  assert.equal(pub.drawnDisabledBonds.length, 7);
+  assert.equal(pub.drawnDisabledBonds.length, 10);
   assert.ok(pub.bannedChess.length > 0);
   for (const id of pub.bannedChess) assert.ok(!h.m.pool.has(id), `${id} should not be in the pool`);
-  assert.equal(h.m.pool.entries.size + pub.bannedChess.length, 113);
+  assert.equal(h.m.pool.entries.size + pub.bannedChess.length, 125);
   checkInvariants(h.m);
   h.m.dispose();
 });

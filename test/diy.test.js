@@ -35,11 +35,11 @@ test('slots: two per tier (5, 6), each with its elite twin', () => {
   assert.equal(diyTokenOwner(SIEGE, chess.chess_char_6_diy1_b.status), 'char_112_siege@2/60/7/3');
 });
 
-test('diyPool: tier 5 = 15 prototypes + 72 owned 6★, tier 6 = 9 + 72; no preset, no collab; with the kit registry only kitted operators', () => {
+test('diyPool: tier 5 = 15 prototypes + 66 owned 6★, tier 6 = 9 + 66; no preset, no collab; with the kit registry only kitted operators (2026-10-13: −1 嵯峨转预设)', () => {
   const p5 = diyPool(5, { data: DATA }), p6 = diyPool(6, { data: DATA });
   assert.deepEqual(p5, [...RESERVES5, ...ELITES, ...ownedPool]);
   assert.deepEqual(p6, [...ELITES, ...ownedPool]);
-  assert.deepEqual([p5.length, p6.length], [87, 81]);
+  assert.deepEqual([p5.length, p6.length], [81, 75]);  // 2026-10-13: 嵯峨 became a preset chess and left the owned pool  // 2026-10-12: 早露/维伊/鸿雪 left the owned pool  // 2026-10-11: 怒潮凛冬/赫拉格 became preset chess and left the owned pool
   const roster = new Set(Object.values(chess).map((c) => c.charId).filter(Boolean));
   for (const id of p5) assert.ok(!roster.has(id) && !COLLAB.includes(id), id);
   assert.deepEqual(diyPool(4, { data: DATA }), [], 'no 自选 slot at tier 4');

@@ -20,6 +20,7 @@ export default {
       talents: [{ install(battle, unit) {
         onDamagedOn(battle, unit, (ctx) => {
           if (!byEnemyAttack(ctx) || !unit.alive) return;
+          if (ctx.dmg?.tags?.includes('springCounter')) return;   // 碎铳之簧的反弹不再反反（hookDepth>32 死循环, fuzz battle 83）
           const src = ctx.source;
           if (s2 && unit.skill?.active && src.alive) {
             battle.dealDamage(unit, src, { amount: unit.s.def * num(bb.atk_scale), type: 'phys', isSkill: true, canDodge: false, tags: ['counter'] });

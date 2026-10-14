@@ -67,6 +67,10 @@ export class BattleDeploy {
     }
     if (first) this._ev(['spawn', unitInfo(u)]);
     this._ev(['deploy', u.id]);
+    // a deploy-time passive's 'skill' anim window goes out here — after the 'deploy' event, so the client's
+    // view exists (and stands) when it arrives; fired inside skill.reset it landed before 'spawn' and was lost
+    // (skills.js _startPassive / _firePassiveAnim)
+    if (sk.kind === 'passive' && typeof sk._firePassiveAnim === 'function') sk._firePassiveAnim();
     if (this._hooks.deploy) this.emit('deploy', { unit: u, initial });
     // 联防: "部署完成后，将对应单位的…技力修改至与上一阶段结束时相同" — the carried SP is set again once the deployment is
     // done, so a deploy-time SP gift (独行, 黄沙罗盘 …) does not come on top of it; later redeploys keep those gifts

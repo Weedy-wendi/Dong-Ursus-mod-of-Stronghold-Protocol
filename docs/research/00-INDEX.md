@@ -118,6 +118,8 @@ The server draws a disabled bond set **D**: **3 core + 4 add-on** in NORMAL/HARD
 
 **An operator is banned iff all its bonds ∈ D.** At 3 + 4 that averages ≈22 banned operators. The briefing shows lit and greyed bonds plus the banned list; the in-match dropdown shows banned counts per bond. The rule reproduces a real screenshot's counts (7/6/5/5/5/4/3) exactly (01 A2).
 
+**Remake adjustment (owner decision 2026-10-13, not official):** with the two custom core bonds (东/乌萨斯) the core pool grew 8 → 10, so the draw is **5 core + 5 add-on** in NORMAL/HARD/ABYSS (config `data/config.json → bans`, built by tools/build-data.mjs) — scaled to keep the average available operators at the 0.2.1 baseline of ≈90 (MC: 0.2.1 3+4 → 22.0 banned / 90.0 available; 10-core 5+5 → 33.5 / 91.5). The draw still only filters the shop pool: a drawn bond stays activatable (computeBonds never reads the ban set) — its members that survive (multi-bond ones via their other bonds, plus 调和's +1) still reach the thresholds; only 阿戈尔 shows a real (2.7 %) risk of not even reaching its lowest tier with 调和. Weight remains a draw-eligibility gate, not a sampler weight.
+
 ## 7. Contradictions found and resolved
 
 | Topic | Conflict | Resolution |

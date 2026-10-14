@@ -331,7 +331,7 @@ test('规则解析: 仇白 LOR-Y 同文案但数值写进具名天赋 —— 引
   assert.equal(traitAttackSpeedRule(def), null, '引擎看不到 → 由 kits/ops/chess_char_6_15-qiubai.js 消费');
 });
 
-test('覆盖锁定: 全数据 266 个棋子 × 全部模组选择里，被引擎接管的只有那两条 REA-Y，其余全部显式拒绝（unknown = 0）', () => {
+test('覆盖锁定: 全数据 276 个棋子 × 全部模组选择里，被引擎接管的只有那两条 REA-Y，其余全部显式拒绝（unknown = 0）', () => {
   const installed = [];
   const refused = [];
   const reasons = {};
@@ -354,6 +354,8 @@ test('覆盖锁定: 全数据 266 个棋子 × 全部模组选择里，被引擎
   }
   assert.ok(scanned > 500, `the whole data set was scanned (${scanned} defs)`);
   assert.deepEqual(installed.sort(), [
+    'chess_char_3_98_b|default|12|ok',              // 烈夏 LOR-Y 特性追加（精英形态并入基础特性 bb）—— 2026-10-12
+    'chess_char_3_98_b|uniequip_002_leto|12|ok',    // 烈夏 LOR-Y（数值在模组特性 bb 上）—— 2026-10-12
     'chess_char_5_01_b|uniequip_003_excu2|12|ok',   // 圣约送葬人 REA-Y（数值在隐藏天赋上）
     'chess_char_5_06_b|uniequip_003_etlchi|12|ok',  // 隐德来希 REA-Y（数值在 trait.bb 上）
   ]);
@@ -411,6 +413,8 @@ test('覆盖锁定（补位 / 自选）: 每个补位干员和每个自选组合
   }
   assert.ok(tally.standIn > 100, `every stand-in was scanned (${tally.standIn})`);
   assert.ok(tally.diy > 1000, `every 自选 combination was scanned (${tally.diy})`);
-  assert.deepEqual(applied, [], 'no stand-in or 自选 pick gains the engine rule');
-  assert.deepEqual(Object.keys(reasons).sort(), ['kit'], 'every line they carry is a kit-owned shape (no unknown, no other mode)');
+  // 2026-10-12: 烈夏 (char_194_leto) became a preset chess — her LOR-Y elite form gains the engine rule as a stand-in too
+  assert.deepEqual(applied, ['standIn chess_char_3_98_b|char_194_leto'], 'no stand-in or 自选 pick gains the engine rule beyond 烈夏 (LOR-Y)');
+  // 烈夏's LOR-Y conditional rule ('ok') rides her stand-in elite form alongside the kit-owned lines
+  assert.deepEqual(Object.keys(reasons).sort(), ['kit', 'ok'], 'every line they carry is a kit-owned shape (no unknown, no other mode)');
 });

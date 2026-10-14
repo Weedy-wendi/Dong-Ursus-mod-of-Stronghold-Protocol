@@ -193,6 +193,14 @@ function resolveSkill(names, find, index, attack) {
   for (const P of prefixes) {
     const c = skillFamily(names, find, P, P !== 'Skill');
     if (c) {
+      // 麒麟R夜刀-style launch clips (char_1029_yato2, 2026-10-14): a bare Start_N is skill n's own launch
+      // animation and Skill_N_End its closing clip, sitting next to the shared Skill_* family — the family
+      // resolver only looks for Skill_N_Begin/Start, so these were left unused and the skill stance showed
+      // no launch at all. Fill them in when the family itself has no begin / the numbered End exists.
+      const launch = find(`Start_${n}`);
+      if (launch && !c.begin) c.begin = launch;
+      const nEnd = find(`Skill_${n}_End`);
+      if (nEnd && c.end !== nEnd) c.end = nEnd;
       const { idle, ...rest } = c;
       return { ...rest, index, idle };
     }

@@ -94,7 +94,7 @@ test('every chess and 自选 form at every potential: the raw keyframes plus the
     if (c.isDiy || !c.charId) continue;
     for (let rank = 0; rank <= FULL_RANK; rank++) { const r = atRank(c, rank); check(c.chessId, c.charId, c.status, r.statsBase ?? r.stats, rank); n++; }
   }
-  assert.equal(n, 258 * 6);
+  assert.equal(n, 284 * 6);  // 2026-10-13: 东扩展 +4 棋子记录（白雪/吉星/嵯峨/麒麟R夜刀；2026-10-12: +10）
   let forms = 0;
   for (const [charId, u] of Object.entries(backups.units)) {
     for (const f of Object.values(u.forms)) {
@@ -102,7 +102,7 @@ test('every chess and 自选 form at every potential: the raw keyframes plus the
       forms++;
     }
   }
-  assert.equal(forms, 259);
+  assert.equal(forms, 241);  // 2026-10-13: 嵯峨等转 PRESET 后备份表单数变化（2026-10-12: 早露/维伊/鸿雪 left the units）
 });
 
 test('talent candidates at every potential: each talent is the last one unlocked with requiredPotentialRank ≤ the rank', { skip: !HAS_CACHE && 'no .cache/gamedata' }, () => {

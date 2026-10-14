@@ -20,7 +20,8 @@ const CASES = [
   ['浊心斯卡蒂 海嗣', { chessId: 'chess_char_6_04_a' }, 'token_10017_skadi2_dedant', 25],
   ['温蒂 工程蓄水炮', { diy: { slot: 5, charId: 'char_400_weedy', skillIndex: 0, uniEquipId: null } }, 'token_10009_weedy_cannon', 20],
   ['莱伊 沙地兽', { diy: { slot: 5, charId: 'char_4117_ray', skillIndex: 0, uniEquipId: null } }, 'token_10034_ray_sndbst', 25],
-  ['鸿雪 打字机', { diy: { slot: 5, charId: 'char_4055_bgsnow', skillIndex: 0, uniEquipId: null } }, 'token_10026_bgsnow_subbow', 25],
+  // 鸿雪 is a preset chess since 2026-10-12 — her kit wires the typewriter's countdown for her pieces
+  ['鸿雪 打字机', { chessId: 'chess_char_4_99_a' }, 'token_10026_bgsnow_subbow', 25],
 ];
 
 function field(owner, tokenId) {

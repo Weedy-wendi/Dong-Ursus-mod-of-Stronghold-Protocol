@@ -24028,6 +24028,12 @@
     "bytes": 3366
    },
    "fallbackCampLogo": null
+  },
+  "ursusShip": {
+   "name": "乌萨斯",
+   "iconId": "icon_ursusShip",
+   "icon": null,
+   "fallbackCampLogo": "https://raw.githubusercontent.com/ArknightsAssets/ArknightsAssets2/cn/assets/dyn/arts/camplogo/logo_ursus.png"
   }
  },
  "items": {

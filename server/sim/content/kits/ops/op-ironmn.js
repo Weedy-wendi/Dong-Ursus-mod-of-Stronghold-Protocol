@@ -365,7 +365,7 @@ export default {
       },
       talents: [
         { install(battle, unit) {
-          // 战地工程师: his device pieces run the device kits (set up here, before the battle starts — as op-bgsnow.js); the
+          // 战地工程师: his device pieces run the device kits (set up here, before the battle starts — as chess_char_4_99-bgsnow.js); the
           // stock refilled on each of his deployments; his devices leave with him (die_to_kill_token)
           const st = deviceState(unit);
           st.cap = cnt;

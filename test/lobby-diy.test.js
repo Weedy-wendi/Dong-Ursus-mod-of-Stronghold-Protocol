@@ -133,7 +133,8 @@ describe('room.diy (lobby + real match)', () => {
   let pool;
   const cap = quietLog();
   before(async () => {
-    srv = await startServer({ port: 0, host: '127.0.0.1', log: cap.log, seedFn: () => 4242 });
+    // (seed 4244: the disabled-bond draw grew by 乌萨斯 on 2026-10-11 — seed 4242 banned 维多利亚, siege's stock)
+    srv = await startServer({ port: 0, host: '127.0.0.1', log: cap.log, seedFn: () => 4244 });
     pool = clientPool(() => `ws://127.0.0.1:${srv.port}/ws`);
   });
   afterEach(async () => { await pool.closeAll(); });

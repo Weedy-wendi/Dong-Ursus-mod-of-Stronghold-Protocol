@@ -15,7 +15,8 @@ const SIEGE = 'char_112_siege'; // 推进之王 (维多利亚)
 const PICK = { charId: SIEGE, skillIndex: 2, uniEquipId: 'uniequip_002_siege' };
 
 /** A co-op match: p_0 slots 推进之王 at T5A, p_1 slots nothing; first prep. */
-function prep(seed = 911) {
+// (default seed 902: the disabled-bond draw grew by 乌萨斯 on 2026-10-11 — seed 911 bans 维多利亚, siege's stock)
+function prep(seed = 902) {
   const seats = [
     { seat: 0, playerId: 'p_0', name: 'P0', isBot: false, connected: true, diy: { [T5A]: PICK } },
     { seat: 1, playerId: 'p_1', name: 'P1', isBot: false, connected: true },

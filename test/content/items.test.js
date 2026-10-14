@@ -1,4 +1,4 @@
-// Equipment (56 EQUIP, normal + golden) and the 3 Arts: battle side (server/sim/content/items/battle.js) with synthetic
+// Equipment (60 EQUIP, normal + golden) and the 3 Arts: battle side (server/sim/content/items/battle.js) with synthetic
 // operators / enemies for exact numbers, prep side (items/meta.js + the engine built-ins it keeps) through the real
 // registry and dispatcher. Numbers are the data blackboards (research 04 §3–§7); every item key is covered (last test).
 import { test } from 'node:test';
@@ -75,6 +75,9 @@ const STAT_CASES = [
   [A('6_06'), { res: 40 }], [B('6_06'), { res: 60 }],                                     // 耶拉冈德之泪
   [A('6_10'), { redeployMul: 0.6, maxHp: 2000 }], [B('6_10'), { redeployMul: 0.4 }],      // 骑士戒律
   [A('6_11'), { spRecovery: 1.2 }], [B('6_11'), { spRecovery: 1.35 }],                   // 家族徽章
+  [A('9_02'), { atk: 700 }], [B('9_02'), { atk: 800 }],                                  // 残心一闪 +40 / +60 %
+  [A('9_03'), { maxHp: 2500 }], [B('9_03'), { maxHp: 3000 }],                            // 乌萨斯军粮 +25 / +50 %
+  [A('9_04'), { atk: 725 }], [B('9_04'), { atk: 825 }],                                  // 冰原咆哮 +45 / +65 %
 ];
 
 test('stat equipment: percentages are 直接乘算 — additive with each other (normal / golden numbers from data)', () => {
@@ -683,10 +686,10 @@ test('变形同构体: carrier counts as a member of the other item\'s giveBondI
   assert.deepEqual([...unitBonds(h.unit('t_op'))], ['lateranoShip']);
   const h2 = fight({ units: [{ chessId: 't_op', row: 10, col: 4, items: [A('4_08')] }] });
   assert.deepEqual([...unitBonds(h2.unit('t_op'))], [], 'the bond item alone grants nothing');
-  // every giveBondId item grants its bond (14 bonds)
+  // every giveBondId item grants its bond (16 bonds — 2026-10-13: +东国鬼面 dongShip / 乌萨斯军粮 ursusShip)
   const grants = Object.values(DATA.items).filter((r) => r.giveBondId && !r.isGolden);
-  assert.equal(grants.length, 18);
-  assert.equal(new Set(grants.map((r) => r.giveBondId)).size, 14);
+  assert.equal(grants.length, 20);
+  assert.equal(new Set(grants.map((r) => r.giveBondId)).size, 16);
   for (const r of grants) {
     const hh = fight({ units: [{ chessId: 't_op', row: 10, col: 4, items: [r.id, A('6_09')] }] });
     assert.ok(unitBonds(hh.unit('t_op')).includes(r.giveBondId), r.id);
@@ -703,6 +706,91 @@ test('变形同构体: carrier counts as a member of the other item\'s giveBondI
   assert.equal(ps.bonds.victoriaShip.count, before + 1);
   assert.equal(DATA.items[A('6_09')].upgradeNum, 100);
   cover(A('6_09'), B('6_09'), A('1_01'));
+});
+
+// ---------------------------------------------------------------------------------------------------------------
+// 自制装备 (chess_item_9_0x, 2026-10-13: 东×2 + 乌萨斯×2; tools/custom-content.mjs ITEMS)
+
+test('东国鬼面: skill start loses 10 %/20 % current HP; ATK +30 %/45 % during that skill only', () => {
+  const run = (id) => {
+    const h = fight({ ops: { t_op: op('t_op', { skill: { spCost: 5, initSp: 5, duration: 4 } }) },
+      units: [{ chessId: 't_op', row: 10, col: 4, items: [id] }], foes: [[10, 5]] });
+    h.step(1);
+    const u = h.unit('t_op');
+    h.runUntil(() => h.hooksOf('skillStart').length > 0, 30);
+    h.run(0.2);
+    const hpIn = u.hp, atkIn = u.s.atk;
+    h.run(4.4);   // skill (4 s) ends, next cast (5 s SP) not yet
+    return { maxHp: u.s.maxHp, hpIn, atkIn, atkAfter: u.s.atk };
+  };
+  let r = run(A('9_01'));
+  close(r.hpIn, r.maxHp * 0.9, 'normal: 10 % of current HP lost on skill start');
+  close(r.atkIn, 650, 'ATK +30 % during the skill (500 × 1.3)');
+  close(r.atkAfter, 500, 'ATK back to normal after the skill ends');
+  r = run(B('9_01'));
+  close(r.hpIn, r.maxHp * 0.8, 'golden: 20 % of current HP lost on skill start');
+  close(r.atkIn, 725, 'ATK +45 % during the skill (500 × 1.45)');
+  cover(A('9_01'), B('9_01'));
+});
+
+test('残心一闪: 【东】 member hits convert to weakness damage (non-members do not); with 东国鬼面 the first dip below 50 % HP grants a 50 % max-HP shield', () => {
+  const mk = (items, bonds) => fight({ ops: { t_op: op('t_op', { bonds }) },
+    units: [{ chessId: 't_op', row: 10, col: 3, items }], foes: [[10, 8, 'e_def']],
+    enemies: { e_def: DUMMY('e_def', { def: 900 }) } });
+  const h = mk([A('9_02')], ['dongShip']);
+  h.step(1);
+  close(h.b.dealDamage(h.unit('t_op'), foe(h), { amount: 1000, type: 'phys', canDodge: false }), 1000, '【东】 phys → arts vs DEF');
+  // combo: 鬼面 carried → the first time HP < 50 %, a 50 %-max-HP shield (once per battle)
+  const h2 = mk([A('9_02'), A('9_01')], ['dongShip']);
+  h2.step(1);
+  const u2 = h2.unit('t_op');
+  hitTrue(h2, u2, u2, u2.hp * 0.9);
+  h2.run(1);
+  const sh = u2.findBuff('item:chess_item_9_02_e_a:canyinShield');
+  assert.ok(sh, 'the combo shield is granted');
+  close(sh.shield, 1000, 'shield = 50 % of 2000 max HP');
+  // non-【东】 carrier: no retype (phys mitigated by 900 DEF)
+  const h3 = mk([A('9_02')], []);
+  h3.step(1);
+  close(h3.b.dealDamage(h3.unit('t_op'), foe(h3), { amount: 1000, type: 'phys', canDodge: false }), 100, 'non-member: no retype');
+  cover(A('9_02'), B('9_02'));
+});
+
+test('乌萨斯军粮: heals 4 % of max HP every 5 s (max HP +25 % from the attr buff)', () => {
+  const h = fight({ units: [{ chessId: 't_op', row: 10, col: 4, items: [A('9_03')] }] });
+  h.step(1);
+  const u = h.unit('t_op');
+  close(u.s.maxHp, 2500, 'max HP +25 %');
+  hitTrue(h, u, u, 500);
+  const hp0 = u.hp;
+  h.run(5.2);
+  close(u.hp - hp0, 100, 'one 5 s tick heals 4 % of 2500');
+  cover(A('9_03'), B('9_03'));
+});
+
+test('冰原咆哮: 【乌萨斯】 member gains ATK per other Ursus member on the field, capped at +20 % (with 军粮 +30 %); non-members get the stat only', () => {
+  const allies = (n) => Object.fromEntries([1, 2, 3, 4, 5, 6].slice(0, n).map((i) => [`u${i}`, op(`u${i}`, { bonds: ['ursusShip'], range: [[0, 0]] })]));
+  const mk = (items, n) => fight({
+    ops: { t_op: op('t_op', { bonds: ['ursusShip'], range: [[0, 0]] }), ...allies(n) },
+    units: [{ chessId: 't_op', row: 10, col: 4, items }, ...[1, 2, 3, 4, 5, 6].slice(0, n).map((i) => ({ chessId: `u${i}`, row: 9, col: 2 + i }))],
+  });
+  const atk = (h) => h.unit('t_op').s.atk;
+  let h = mk([A('9_04')], 0);
+  h.step(1);
+  close(atk(h), 725, 'alone: the +45 % stat only');
+  h = mk([A('9_04')], 1);
+  h.step(1);
+  close(atk(h), 745, 'one other Ursus member: +4 %');
+  h = mk([A('9_04')], 6);
+  h.step(1);
+  close(atk(h), 825, 'six others: +24 % capped at +20 %');
+  h = mk([A('9_04'), A('9_03')], 6);
+  h.step(1);
+  close(atk(h), 845, 'with 军粮: the cap rises to +30 %');
+  const plain = fight({ ops: { t_op: op('t_op', { range: [[0, 0]] }) }, units: [{ chessId: 't_op', row: 10, col: 4, items: [A('9_04')] }] });
+  plain.step(1);
+  close(atk(plain), 725, 'non-【乌萨斯】 carrier: the stat only');
+  cover(A('9_04'), B('9_04'));
 });
 
 test('lendItemEffects (萨尔贡 × 娜仁图亚): tier ≤ V battle effects lent for 60 s, then removed', () => {
@@ -1278,5 +1366,5 @@ test('coverage: every equipment (normal + golden) and every Art is exercised by 
   // items whose numbers are asserted in the stat table, the proc tests or the meta tests
   const missing = Object.keys(DATA.items).filter((id) => !COVER.has(id)).sort();
   assert.deepEqual(missing, []);
-  assert.equal(Object.keys(DATA.items).length, 115);
+  assert.equal(Object.keys(DATA.items).length, 123);
 });

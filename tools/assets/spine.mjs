@@ -135,11 +135,22 @@ const PRISONER_GREY_3 = Object.freeze({
  */
 const UTAGE_S1 = Object.freeze({ begin: 'Skill_Start', loop: 'Skill_Loop', end: 'Skill_End', index: 0, idle: null });
 const UTAGE_S2 = Object.freeze({ ...clipOf('Attack', 'attack'), index: 1, idle: null });
+/**
+ * 嵯峨 (char_362_saga): her skeleton has one numbered skill set, Skill_2_Begin / Skill_2_Loop / Skill_2_Idle /
+ * Skill_2_End (a stance with its own idle — 起手、持续、收尾), next to one unnumbered Skill clip (a one-shot swing).
+ * The resolver (by name) gave Skill_2 to her second slot and the plain Skill to her third — but the official client
+ * plays the Skill_2 stance for her THIRD skill 怒目 (a lasting stance) and the plain Skill clip for her second skill
+ * 除恶 (an instant strike): the skeleton's numbering does not follow the skill slots (the owner's playtest of
+ * 2026-10-14). [ASSUMED: by the clips' shapes and the report; the prefab's skill table was not read]
+ */
+const SAGA_S2 = Object.freeze({ begin: null, loop: 'Skill', end: null, index: 1, idle: null });
+const SAGA_S3 = Object.freeze({ begin: 'Skill_2_Begin', loop: 'Skill_2_Loop', end: 'Skill_2_End', index: 2, idle: 'Skill_2_Idle' });
 export const PREFAB_SPINE_ROLES = Object.freeze({
   enemy_1116_liprr: PRISONER_GREY_3,
   enemy_1116_liprr_2: PRISONER_GREY_3,
   // operators by character id: both the front and the back model
   char_337_utage: { skill: UTAGE_S2, skills: { 0: UTAGE_S1, 1: UTAGE_S2 } },
+  char_362_saga: { skills: { 1: SAGA_S2, 2: SAGA_S3 } },
 });
 
 /**

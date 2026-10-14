@@ -94,10 +94,11 @@ test('g.move: legality per chess position, BAD_TILE outside, deploy cap 8, swaps
   assert.deepEqual(m.handle('p_0', { t: 'g.move', uid: a.uid, to: { area: 'board', row: 9, col: 4 } }), { ok: true }, 'melee/ranged swap on melee tiles');
   assert.equal(ps.board.get('9,4').uid, a.uid);
   assert.equal(ps.board.get('9,3').uid, b.uid);
-  // fill to the cap (8)
+  // fill to the cap (8) — melee from tiers 1+2: the mode's per-tier bans can leave a single tier short of 7
+  // (2026-10-14 白雪 t3→t2 shifted the ban split: only 5 tier-2 melee survive in the pool)
   const tiles = legalTiles(ps.deployMap(), 'melee').filter(([r, c]) => !ps.board.has(tileKey(r, c)));
   const extra = [];
-  for (const id of chessOfTier(2, MELEE).filter((x) => m.pool.has(x)).slice(0, 7)) extra.push(give(m, ps, id));
+  for (const id of [...chessOfTier(1, MELEE), ...chessOfTier(2, MELEE)].filter((x) => m.pool.has(x) && x !== meleeId).slice(0, 7)) extra.push(give(m, ps, id));
   for (let i = 0; i < 6; i++) assert.deepEqual(m.handle('p_0', { t: 'g.move', uid: extra[i].uid, to: { area: 'board', row: tiles[i][0], col: tiles[i][1] } }), { ok: true });
   assert.equal(ps.deployCount, 8);
   assert.deepEqual(m.handle('p_0', { t: 'g.move', uid: extra[6].uid, to: { area: 'board', row: tiles[6][0], col: tiles[6][1] } }), { error: ERR.BOARD_FULL });
@@ -218,7 +219,11 @@ test('terrain 机变 card (模拟战场演变·模式二 on 战场 m02): an oper
   const r = give(m, ps, ranged);
   assert.deepEqual(m.handle('p_0', { t: 'g.move', uid: r.uid, to: { area: 'board', row: 12, col: 5 } }), { ok: true });
   // a full hand: the withdrawn operator overflows into temp (the player re-places it during the prep)
-  for (let i = 1; ps.hand.some((p) => p == null); i++) give(m, ps, melees[i % melees.length]);
+  // — distinct ids from tiers 1+2: the per-tier pool can be shorter than the hand, and a 3rd copy of
+  //   one id would merge / trip the invariant (2026-10-14 白雪 t3→t2 shifted the ban split)
+  const fillerIds = [...chessOfTier(1), ...chessOfTier(2)]
+    .filter((x) => m.pool.has(x) && x !== a.id && x !== r.id);
+  for (let i = 0; ps.hand.some((p) => p == null); i++) give(m, ps, fillerIds[i]);
   const card = m.gd.choices.cards.tactic.find((c) => c.effectId === 'map_m02_1');
   assert.ok(card, 'data: the m02 terrain card');
   applyCard(m, ps, { kind: 'tactic', id: 'map_m02_1', name: card.name, desc: card.desc, team: false, tacticKind: 'terrain' });

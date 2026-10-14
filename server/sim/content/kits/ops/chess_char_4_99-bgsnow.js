@@ -1,43 +1,12 @@
-// server/sim/content/kits/ops/op-bgsnow.js — 鸿雪 (char_4055_bgsnow) 自选 operator kit: 6★ 重射手 (狙击), an owned-6★ pick of
-// the tier-5 and tier-6 自选 slots; every skill, both talents, the trait, both modules (ARC-Y 打字机色带, ARC-X 仪式感) at
-// every form, and the kit of her summon “打字机” (token_10026_bgsnow_subbow). Kit contract and the 自选 rules: ../README.md
-// ("How to add an operator (自选)").
-//
-// Forms (data/backups.json units.char_4055_bgsnow): normal = E2 Lv1, skills at rank 4, no module; elite = E2 Lv60, rank 7,
-// the picked module at stage 1 (tier 5) or 3 (tier 6) — the owner's decision of 2026-10-05. Full potential (the owner's
-// decision of 2026-10-07). Sources: character_table / skill_table / battle_equip_table / token_table (zh_CN, as built into backups.json)
-// and PRTS 鸿雪 + “打字机” (点题 备注; the {{**|82%|下降18%}} marks = a final ×0.82 (full potential: ×0.8); PRTS 伤害分类: "鸿雪2技能三段伤害的后2段"
-// are 持续伤害).
-// - Trait (重射手) "高精度的近距离射击": ranged physical arrows, 3-6, can hit air units (PRTS 分支特性信息 重射手 "可对空"),
-//   blocks 1, ground enemies target her (no flag).
-// - Module ARC-Y “打字机色带” trait "攻击正前方的敌人时攻击力提升至105%且无视其物理闪避" (trait bb atk_scale): her damage on
-//   an enemy whose body is on her straight line ahead ×atk_scale, not dodgeable — 点题's two 持续伤害 hits included
-//   [ASSUMED: they are two of its "3次攻击"]; 正前方 = local row 0, column ≥ 0 (her own tile included, as the 3-2 "前方3格"
-//   lines count it) [ASSUMED]. Stage 2+ "属性更强的打字机": the typewriter's stats of the data (token module attributes).
-// - Module ARC-X “仪式感”: "再部署时间减少" (attribute respawn_time −25, in the stats); stage 2+ upgrades 弱点速记 (below).
-// - T1 自动打字机 "可使用一个持续25秒的“打字机”，“打字机”拥有和自己一样的技能，拥有独立的再部署时间": the typewriter is a
-//   hand piece the player places (the mode's talent summons, content/tokens.js header): it deploys with the board, leaves
-//   after 25 s (the token's hidden talent `interval`), and comes back on its tile after its own redeploy time (data 40 s; ×
-//   respawn_time while she carries S2), paying its cost (5 DP), while she is on the field [ASSUMED: as the 海嗣]. Its skill
-//   is the copy of hers the data gives (bySkill: sktok_bgsnow_1 / 2 / 3 — the 卫戍 strategy force-opens a summon's manual
-//   skill, PRTS 卫戍协议/帮助): free (spCost 0), once per deployment, by the data's DEFAULT. It is untargetable ("不会受到
-//   攻击"), blocks nothing, hits air units. content/tokens.js has no kit for it: her install gives her pieces this one.
-// - T2 弱点速记 "“打字机”的攻击会使命中目标的防御力下降18%，持续4秒；若“打字机”放在鸿雪周围四格则效果提升至23%" (full potential:
-//   20% for 5 s, 25%): every damage the typewriter's attacks land cuts the target's DEF by bgsnow_token[def_down]_1 (_2
-//   while the typewriter stands on one of the 4 tiles next to her — while she is on the field [ASSUMED]) for `duration` s:
-//   the catalogue `defDown` (final ×, 同名 keeps the strongest). ARC-X stage 2+: 28 % / 33 % (full potential: 30 % /
-//   35 %) and "周围八格" (the talent text names the ring).
-// - S1 抑扬格 (AUTO, attack SP, data DEFAULT — an AUTO attack buff waits for her next attack): ATK +atk until she leaves the
-//   field ("持续时间无限": a toggle), and every attack meanwhile `prob` to deal ×atk_scale (one roll per attack).
-// - S2 点题 (MANUAL, 2 charges, data SKILL_RANGE on its 3-1): passive — the typewriter's redeploy time ×respawn_time;
-//   active — 3 attacks at once ("立即": the cast takes the next attack now) on one target of the 3-1, atk_scale × ATK each:
-//   the first a physical 普通伤害 attack, the other two physical 持续伤害 (PRTS 伤害分类: tags 'dot', not dodgeable).
-//   PRTS 备注 "仅在干员自身范围内有可攻击目标时可释放": the data's SKILL_RANGE fires for any enemy of the 3-1, untargetable
-//   ones too; the cast then waits (pending) for an attackable target — reported as an open question (the 备注 reading
-//   of the strategy would be the basic one on her own range).
-// - S3 锐笔速写 (MANUAL, data ACTIVE_RANGE on its 3-1): range 3-1 while it runs, attack interval base_attack_time s (−0.6 on
-//   1.6 s), every attack atk_scale × ATK, bgsnow_s_3[atk_up].atk_scale × ATK on the 正前方3格 (the 3-2 line, her tile
-//   included [ASSUMED]).
+// server/sim/content/kits/ops/chess_char_4_99-bgsnow.js — 鸿雪 (char_4055_bgsnow) kit, tier 4 (自定义, 2026-10-12).
+// Kit contract and rules: ../README.md. 机制与自选 kit op-bgsnow.js（同一干员的 DIY 版）逐条同源，仅按预设棋子契约
+// 改写；op-bgsnow.js 于本批退役（鸿雪转预设棋）。形态：普通 _a = E2 Lv1 / rank 4 / 无模组；精锐 _b = E2 Lv55 /
+// rank 7 / ARC-Y 打字机色带 stage 1（tier 4）。默认技能 S3（chess.json defaultSkillIndex 2）。
+// 数值全部来自官方数据表 blackboard；PRTS 鸿雪 / “打字机” 备注（{{**|82%|下降18%}}=×0.82、点题的后 2 段为持续伤害、
+// 弱点速记的近身提升与周围八格、召唤物生命周期与独立再部署）见 op-bgsnow.js 头注存档。
+//   - 干员自身效果【采集单第 8 项】休整犒赏（garrison_986）：<休整期结束时>自身和身后干员的所属盟约层数+4/8 ——
+//     这是**休整期（prep）事件**，走 garrisons/meta.js 的自定义处理器 act2autochess_gar_eff_986_a/b（SERVER_PREP_FIN），
+//     本 kit（战斗侧）不含它。
 
 import { num, up, traitBb, skillRec, batMod } from '../shared/tier1.js';
 import { absoluteRangeKeys } from '../../../targeting.js';
@@ -169,13 +138,20 @@ function typewriterKit(t, owner, chess) {
 }
 
 export default {
-  char_4055_bgsnow: (bb, chess) => {
+  chess_char_4_99_a: (bb, chess) => {
     const b1 = bbOf(chess, S1), b2 = bbOf(chess, S2), b3 = bbOf(chess, S3);
     const s2 = skillRec(chess, S2), s3 = skillRec(chess, S3);
     const frontScale = num(traitBb(chess).atk_scale, 1);
     const s2Scale = num(b2.atk_scale, 1);
     const s3Scale = num(b3.atk_scale, 1), s3Front = num(b3['bgsnow_s_3[atk_up].atk_scale'], s3Scale);
+    const s3Spec = {
+      kind: 'duration',
+      targeting: { rangeGrid: s3?.rangeGrid ?? null },
+      mods: { batPct: batMod(b3.base_attack_time, chess) },
+      attack: { atkScale: s3Scale },
+    };
     return {
+      skill: s3Spec,   // 默认技能（S3）只写顶层 skill
       skills: {
         [S1]: { kind: 'toggle', mods: { atkPct: num(b1.atk) } },
         [S2]: {
@@ -184,12 +160,6 @@ export default {
           targeting: { rangeGrid: s2?.rangeGrid ?? null, showOwnRange: true },
           attack: { atkScale: s2Scale, onHit({ battle, unit, target }) { precisFollowUps(battle, unit, target, s2Scale); } },
           onStart({ unit }) { unit.atkCd = 0; }, // "立即": the pending attack goes off now when a target is there
-        },
-        [S3]: {
-          kind: 'duration',
-          targeting: { rangeGrid: s3?.rangeGrid ?? null },
-          mods: { batPct: batMod(b3.base_attack_time, chess) },
-          attack: { atkScale: s3Scale },
         },
       },
       talents: [

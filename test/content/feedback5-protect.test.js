@@ -56,16 +56,16 @@ test('宴 below her threshold holds the shared 庇护; a stronger one from anoth
 
 test('余 (blocking), 缪尔赛思\'s melee copies, 赫拉格 / 左乐 (SBL-X, below 50 %) and 赫德雷 (余火之氅) all hold 庇护 on the shared key', () => {
   const src = (f) => readFileSync(new URL(`../../server/sim/content/kits/ops/${f}`, import.meta.url), 'utf8');
-  for (const f of ['chess_char_1_18-utage.js', 'chess_char_6_03-yu.js', 'chess_char_6_11-mlyss.js', 'op-helage.js', 'op-zuole.js', 'op-hodrer.js']) {
+  for (const f of ['chess_char_1_18-utage.js', 'chess_char_6_03-yu.js', 'chess_char_6_11-mlyss.js', 'chess_char_4_98-helage.js', 'op-zuole.js', 'op-hodrer.js']) {
     assert.match(src(f), /holdProtect\(/, `${f} uses the shared 庇护`);
     assert.doesNotMatch(src(f), /physTakenMul: 1 - dr|dmg\.mul \*= 1 - (dr|protectCut|num\(t\.damage_resistance\))/, `${f}: no private 庇护 multiplier left`);
   }
   // 遥's bubble stays its own effect (damage_resistance[bonus])
   assert.doesNotMatch(src('op-haruka.js'), /holdProtect\(/);
-  // 赫拉格 (SBL-X, tier 5) at 40 % HP: his 庇护 on the shared key
+  // 赫拉格 (SBL-X, preset 精锐 chess_char_4_98_b) at 40 % HP: his 庇护 on the shared key
   const h = makeBattle({
     defs: { enemies: { e: enemyRec({ key: 'e', hp: 1e9, speed: 0 }) } },
-    units: [{ diy: { slot: 5, charId: 'char_188_helage', skillIndex: 0, uniEquipId: 'uniequip_002_helage' }, elite: true, row: 10, col: 5 }],
+    units: [{ chessId: 'chess_char_4_98_b', row: 10, col: 5 }],
     autoFinish: false, timeLimit: 30, seed: 3,
   });
   h.step();

@@ -21,10 +21,10 @@ for (let i = 1; i <= 26; i++) T4.push(`chess_char_4_${String(i).padStart(2, '0')
 
 test('tier4: every tier-4 chess has a hand-authored kit', () => {
   for (const id of T4) assert.equal(typeof kits[id], 'function', id);
-  assert.equal(Object.keys(kits).length, 26);
+  assert.equal(Object.keys(kits).length, 28);  // 2026-10-12: +鸿雪
 });
 
-test('tier4: all 52 kits (normal + elite) fight a mixed wave without content errors', () => {
+test('tier4: all 54 kits (normal + elite) fight a mixed wave without content errors', () => {
   for (const id of T4.flatMap((a) => [a, a.replace(/_a$/, '_b')])) {
     const h = makeBattle({
       defs: { enemies: {

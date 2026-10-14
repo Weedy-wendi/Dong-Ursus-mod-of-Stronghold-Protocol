@@ -88,7 +88,8 @@ test('elites never merge; 风丸 merges with 2 copies; a full hand refuses the m
   // completes the merge (the elite in the hand)
   for (const p of ps.hand) if (p) ps.returnCopies(p);
   ps.hand.fill(null);
-  const x = chessOfTier(1).filter((c) => m.pool.has(c));
+  // tier 1+2: the per-tier bans can leave tier 1 short of the 10 hand slots (2026-10-14 白雪 t3→t2 shifted the split)
+  const x = [...chessOfTier(1), ...chessOfTier(2)].filter((c) => m.pool.has(c));
   const target = x[0];
   give(m, ps, target);
   give(m, ps, target);

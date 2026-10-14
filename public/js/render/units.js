@@ -844,6 +844,14 @@ export class UnitView {
     }
     if (this.isEnemy && !this.slide?.keepFacing && Math.abs(s.vx) > 0.08) this.visFacing = s.vx < 0 ? -1 : 1;
     if ((prevFlags ^ this.flags) & UF.SKILL) this.setSkill(!!(this.flags & UF.SKILL));
+    // The skill stance re-derived from the sim's state of record (this snapshot): a deploy-time passive's 'skill'
+    // events land while this view has no actor or a dead one (the first deploy, a redeploy — and SpineActor.revive
+    // clears skillOn), and it carries no UF.SKILL flag at all — without this its stance never (re)shows (麒麟R夜刀
+    // player report, 2026-10-14). Only the ON side here: the off belongs to the off event / the flags, and a stance
+    // passive's own attacks dip this.anim to ATTACK (animOf) between the SKILL windows — forcing it off there
+    // would flap the stance on every attack.
+    if (this.actor && !this.actor.dead && !this.actor.skillOn
+      && ((this.flags & UF.SKILL) || this.anim === ANIM.SKILL)) this.actor.setSkill(true);
     if (this.anim === ANIM.DIE && this.alive) this.die();
     if (this.actor && this.alive) this.actor.setBase(this._baseFromAnim());
   }

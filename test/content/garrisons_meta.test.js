@@ -884,6 +884,67 @@ test('every SERVER_* effectKey of the data has a registered handler', () => {
   for (const k of keys) assert.ok(REG.has(`garrison:${k}`), k);
 });
 
+test('自定义 986 (鸿雪): 休整期结束时, 自身和身后干员的所属盟约层数 +4/_b +8 (无需激活, behind one tile)', () => {
+  const s = setup();
+  s.acquire('chess_char_4_99_a');
+  give(s.m, s.ps, 'chess_char_4_99_a', 'board', [10, 4]);
+  give(s.m, s.ps, 'chess_char_1_10_a', 'board', [10, 3]);   // 古米 behind her (she faces RIGHT → col 3)
+    s.prepEnd();
+  // 鸿雪: ursusShip + preciShip +4 each; 古米: ursusShip + steadShip +4 each (requireActive: false)
+  const g = s.gainsNow();
+  assert.deepEqual(g, { ursusShip: 8, preciShip: 4, steadShip: 4 }, JSON.stringify(g));   // 鸿雪 +4×2, 古米 +4×2
+  cover('garrison_986_a');
+  const t = setup();
+  t.acquire('chess_char_4_99_b');
+  give(t.m, t.ps, 'chess_char_4_99_b', 'board', [10, 4]);
+  give(t.m, t.ps, 'chess_char_1_10_a', 'board', [10, 3]);
+  t.prepEnd();
+  assert.deepEqual(t.gainsNow(), { ursusShip: 16, preciShip: 8, steadShip: 8 }, JSON.stringify(t.gainsNow()));
+  cover('garrison_986_b');
+});
+
+test('自定义 987 (烈夏): 获得干员时获得 1/_b 2 个随机道具 (投资人 repeat applies as usual)', () => {
+  const s = setup();
+  s.acquire('chess_char_3_98_a');
+  assert.equal(handItems(s.ps).length >= 1, true, '1 random item in the hand: ' + JSON.stringify(handItems(s.ps)));
+  cover('garrison_987_a');
+  const t = setup();
+  t.acquire('chess_char_3_98_b');
+  assert.equal(handItems(t.ps).length >= 2, true, '2 random items in the hand: ' + JSON.stringify(handItems(t.ps)));
+  cover('garrison_987_b');
+});
+
+test('自定义 990 (白雪): 获得干员时, 已激活的层数最高的盟约 +3/_b +6 (未激活不算; 已激活并列 → 盟约表序第一)', () => {
+  // 没有任何已激活盟约 → 不加层（2026-10-13 二次修订：加「已激活」限定）
+  const s = setup();
+  s.acquire('chess_char_3_97_a');
+  assert.deepEqual(s.gainsNow(), {}, JSON.stringify(s.gainsNow()));
+  cover('garrison_990_a');
+  // 已激活者里挑层数最高：未激活的高层盟约不参与；全 0 层并列 → 盟约表序第一
+  const t = setup();
+  t.activate('yanShip', 'siracusaShip');
+  t.ps.layers.siracusaShip = 10;
+  t.acquire('chess_char_3_97_b');
+  assert.deepEqual(t.gainsNow(), { siracusaShip: 6 }, JSON.stringify(t.gainsNow()));
+  cover('garrison_990_b');
+  const u = setup();
+  u.activate('yanShip', 'siracusaShip');   // both 0 layers → bond order decides
+  u.acquire('chess_char_3_97_a');
+  assert.deepEqual(u.gainsNow(), { yanShip: 3 }, JSON.stringify(u.gainsNow()));
+  cover('garrison_990_a');
+});
+
+test('自定义 991 (吉星): 获得干员时, 自身所属盟约全部 +6/_b +12 (未激活也加, 鸿雪 986 同口径)', () => {
+  const s = setup();
+  s.acquire('chess_char_3_96_a');
+  assert.deepEqual(s.gainsNow(), { dongShip: 6, preciShip: 6 }, JSON.stringify(s.gainsNow()));
+  cover('garrison_991_a');
+  const t = setup();
+  t.acquire('chess_char_3_96_b');
+  assert.deepEqual(t.gainsNow(), { dongShip: 12, preciShip: 12 }, JSON.stringify(t.gainsNow()));
+  cover('garrison_991_b');
+});
+
 test('coverage: every SERVER_* garrison id of a visible chess was exercised above', () => {
   const missing = [...VISIBLE_IDS].filter((g) => !COVER.has(g)).sort();
   assert.deepEqual(missing, []);

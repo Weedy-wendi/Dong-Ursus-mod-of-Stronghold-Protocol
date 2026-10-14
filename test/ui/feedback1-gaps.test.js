@@ -2,7 +2,7 @@
 //   1. 变形同构体 shows its pairings ("转职球" read as doing nothing: its text says "具体对应关系可在模拟中查看本装备天赋栏", and
 //      no screen showed that 天赋栏). gameLogic morphPairings builds the list from the items' `giveBondId` — the rule the
 //      server counts with — grouped by bond in bonds.json order; detailPanel MorphPairings draws it on the item card (shop,
-//      reward, hand) and on a wearer's card (装备), 本局禁用 marked (标准: 5 of the 14 bonds), the pairing a wearer wears
+//      reward, hand) and on a wearer's card (装备), 本局禁用 marked (标准: 5 of the 16 bonds), the pairing a wearer wears
 //      highlighted; a bond item says what it gives a 变形同构体 wearer (MorphGrantLine).
 //   2. 调和's +1 in the bond popup ("一些不考虑整备区的盟约计算人数时也会把整备区的干员算进去"): the server marks a count that holds
 //      调和's +1 (`harmony` in m.private bonds / m.public players[].bonds — test/match/feedback1-gaps.test.js); the popup
@@ -91,11 +91,11 @@ function expectedPairings() {
 }
 
 describe('§21.26 1 — 变形同构体: the pairing list (gameLogic morphPairings)', () => {
-  test('from the data: 14 bonds in bonds.json order, 18 items, the same giveBondId the server counts with', () => {
+  test('from the data: 16 bonds in bonds.json order, 20 items, the same giveBondId the server counts with (2026-10-13: +东/乌萨斯 自制装备)', () => {
     const rows = morphPairings(ITEMS, BONDS);
     const want = expectedPairings();
-    assert.equal(rows.length, 14);
-    assert.equal(want.size, 14);
+    assert.equal(rows.length, 16);
+    assert.equal(want.size, 16);
     assert.deepEqual(rows.map((r) => r.bondId), BONDS.map((b) => b.bondId).filter((id) => want.has(id)), 'bonds.json order');
     for (const r of rows) {
       assert.equal(r.name, bonds[r.bondId].name);
@@ -104,7 +104,7 @@ describe('§21.26 1 — 变形同构体: the pairing list (gameLogic morphPairin
       assert.equal(r.off, false);
       assert.equal(r.worn, false);
     }
-    assert.equal(rows.reduce((n, r) => n + r.items.length, 0), 18, '18 bond items');
+    assert.equal(rows.reduce((n, r) => n + r.items.length, 0), 20, '20 bond items');
     const vic = rows.find((r) => r.bondId === 'victoriaShip');
     assert.deepEqual(vic.items.map((it) => it.name), ['维式重锤', '战栗维式重锤', '坚固维式重锤', '加速维式重锤', '灼燃维式重锤'], 'by tier: the hammer series');
     assert.ok(!rows.some((r) => r.items.some((it) => items[it.id].canGiveBond)), '变形同构体 itself is no partner');
@@ -118,7 +118,8 @@ describe('§21.26 1 — 变形同构体: the pairing list (gameLogic morphPairin
     const pairs = [...talent.matchAll(/“([^”]+)”(?:系列装备)?→【([^】]+)】盟约/g)].map(([, item, bond]) => ({ item, bond }));
     assert.equal(pairs.length, 14, talent);
     const rows = morphPairings(ITEMS, BONDS);
-    assert.deepEqual(pairs.map((p) => p.bond).sort(), rows.map((r) => r.name).sort(), 'the same 14 bonds');
+    // the official talent lists the 14 official pairings — the remake adds 东/乌萨斯 (custom items 9_01/9_03)
+    assert.deepEqual(pairs.map((p) => p.bond).sort(), rows.filter((r) => r.bondId !== 'dongShip' && r.bondId !== 'ursusShip').map((r) => r.name).sort(), 'the same 14 official bonds');
     for (const p of pairs) {
       const r = rows.find((x) => x.name === p.bond);
       assert.ok(r.items.some((it) => it.name.includes(p.item)), `“${p.item}”→【${p.bond}】`);
@@ -156,13 +157,13 @@ describe('§21.26 1 — 变形同构体: the pairing list (gameLogic morphPairin
 describe('§21.26 1 — 变形同构体 on the cards', () => {
   const funny = modeOffBonds(getMode('mode_multi_funny'));
 
-  test('the item card (shop / reward / hand): a 天赋 section with the 14 lines, 本局禁用 struck through, no highlight', () => {
+  test('the item card (shop / reward / hand): a 天赋 section with the 16 lines, 本局禁用 struck through, no highlight', () => {
     const v = ItemDetail({ item: items[ISO], piece: null, editable: false, onDestroy() {}, offBonds: funny });
     const sec = [...walk(v)].find((x) => x.type?.name === 'Section' && x.props.title === '天赋');
     assert.ok(sec, 'a 天赋 section (the item text points at its 天赋栏)');
     assert.match(textOf(v), /搭配以下装备时，携带者视为对应盟约的成员：/);
     const rows = byClass(v, 'dmorph__row');
-    assert.equal(rows.length, 14);
+    assert.equal(rows.length, 16);
     const off = rows.filter((r) => hasClass(r, 'is-off'));
     assert.deepEqual(off.map((r) => r.props['data-bond']), ['lateranoShip', 'egirShip', 'kazimierzShip', 'arcaneShip', 'raidShip']);
     for (const r of off) assert.match(textOf(r), /本局禁用/);
@@ -179,7 +180,7 @@ describe('§21.26 1 — 变形同构体 on the cards', () => {
     const blocks = ChessDetail({ chess: chess[WEARER], piece, editable: false, bonds: [], offBonds: funny, loadout: null });
     const equip = blocks.find((b) => b?.key === 'equip');
     const rows = byClass(equip, 'dmorph__row');
-    assert.equal(rows.length, 14);
+    assert.equal(rows.length, 16);
     const worn = rows.filter((r) => hasClass(r, 'is-worn'));
     assert.deepEqual(worn.map((r) => r.props['data-bond']), ['victoriaShip']);
     assert.match(textOf(worn[0]), /生效中/);

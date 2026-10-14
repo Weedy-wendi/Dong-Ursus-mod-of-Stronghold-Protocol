@@ -42,4 +42,18 @@ desktop.ini
 *.swp
 .idea/
 .vscode/
+
+# --- user-excluded design docs (kept locally, not published) -------------------------------
+/策略全表.md
+/道具速查.md
+/东国与乌萨斯新道具方案.md
+/东盟约设计方案.md
+/核心盟约速查.md
+/禁用机制速查.md
+/乌萨斯盟约设计评审.md
+/乌萨斯与东国新策略方案.md
+/早露终端输出手设计方案.md
+
+# --- agent memory (kept locally, not published) ---------------------------------------------
+.workbuddy/memory/
 .claude/

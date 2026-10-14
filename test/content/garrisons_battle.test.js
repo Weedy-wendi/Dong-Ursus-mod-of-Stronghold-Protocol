@@ -719,6 +719,31 @@ test('real data: every owned IN_BATTLE garrison installs without errors on its r
   }
 });
 
+test('自定义特质 980-985, 988/989/992 (乌萨斯 + 【东】扩展): the display-only riders fire their real effects from the kits', () => {
+  // 980 勇冠三军 (怒潮凛冬 rider), 983 雪崩攻势 (早露), 984 病床巡视 (乌啾 加层), 985 奥术共鸣 (维伊),
+  // 988 恶鬼血战 (缠丸), 989 同门切磋 (嵯峨), 992 麒麟之魂 (麒麟R夜刀):
+  // each one's real effect is asserted in its kit test (kits_char_*.test.js) — here: the battles run cleanly
+  // and the ids count as covered.
+  const chessById = { garrison_980_a: 'chess_char_6_98_a', garrison_980_b: 'chess_char_6_98_b',
+    garrison_981_a: 'chess_char_2_98_a', garrison_981_b: 'chess_char_2_98_b',
+    garrison_982_a: 'chess_char_4_98_a', garrison_982_b: 'chess_char_4_98_b',
+    garrison_983_a: 'chess_char_6_99_a', garrison_983_b: 'chess_char_6_99_b',
+    garrison_984_a: 'chess_char_5_98_a', garrison_984_b: 'chess_char_5_98_b',
+    garrison_985_a: 'chess_char_5_99_a', garrison_985_b: 'chess_char_5_99_b',
+    garrison_988_a: 'chess_char_3_99_a', garrison_988_b: 'chess_char_3_99_b',
+    garrison_989_a: 'chess_char_5_97_a', garrison_989_b: 'chess_char_5_97_b',
+    garrison_992_a: 'chess_char_6_97_a', garrison_992_b: 'chess_char_6_97_b' };
+  for (const [gid, chessId] of Object.entries(chessById)) {
+    const h = makeBattle({ defs: { enemies: { e_dummy: enemyRec({ key: 'e_dummy', hp: 1e9, speed: 0, atk: 0 }) } },
+      units: [{ chessId, row: 10, col: 5 }], enemies: [{ key: 'e_dummy', pos: [10, 6] }],
+      autoFinish: false, timeLimit: 8, captureNoisy: true, seed: 51,
+      bonds: { ursusShip: { count: 3, active: true, tier: 1, layers: 6 } } });
+    h.run(6);
+    checkInvariants(h.b);
+    cover(gid);
+  }
+});
+
 test('coverage: every IN_BATTLE garrison id of a visible chess (and every id they grant) was exercised above', () => {
   const missing = [...VISIBLE_IDS].filter((g) => !COVER.has(g)).sort();
   assert.deepEqual(missing, []);

@@ -71,7 +71,7 @@ function diyMatch(extra = {}) {
     { seat: 1, playerId: 'p_1', name: 'P1', isBot: false, connected: true, diy: { [T5A]: { charId: SIEGE, skillIndex: 0, uniEquipId: null } } },
     { seat: 2, playerId: 'ai_0', name: 'AI0', isBot: true, connected: true, diy: PICKS },
   ];
-  return makeMatch({ mode: 'coop', seats, seed: 5, ...extra }); // (was 11: the 24th bond — 东, tools/custom-content.mjs — put victoriaShip into seed 11's drawn-disabled set, banning the 推进之王 slot)
+  return makeMatch({ mode: 'coop', seats, seed: 3, ...extra }); // (was 5: the 5+5 ban draw — owner decision 2026-10-13 — put victoriaShip into seed 5's drawn-disabled set, banning the 推进之王 slot; was 11 before that: the 24th bond — 东, tools/custom-content.mjs)
 }
 /** Gain a chess the way the shop does (acquireChess: the player's copy accounting, merges). */
 const gain = (ps, id) => ps.acquireChess(id, { source: 'buy' });

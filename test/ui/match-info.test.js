@@ -62,8 +62,8 @@ test('matchInfoModel: the two greyed kinds, the briefing order, banned operators
   assert.equal(m.stateOf('sargonShip'), 'drawn');
   assert.equal(m.stateOf('yanShip'), null);
   // bondOrder, then identifier: 调和 (bondOrder 1) leads the add-on row as in the official briefing
-  // 东 (tools/custom-content.mjs, bondOrder 99) sorts after the eight official core bonds
-  assert.deepEqual(m.core.map((b) => b.name), ['炎', '萨尔贡', '维多利亚', '谢拉格', '拉特兰', '阿戈尔', '叙拉古', '卡西米尔', '东']);
+  // 东 / 乌萨斯 (tools/custom-content.mjs, bondOrder 900 / 901) sort after the eight official core bonds
+  assert.deepEqual(m.core.map((b) => b.name), ['炎', '萨尔贡', '维多利亚', '谢拉格', '拉特兰', '阿戈尔', '叙拉古', '卡西米尔', '东', '乌萨斯']);
   assert.equal(m.addon[0].name, '调和');
   assert.equal(m.core.length + m.addon.length, Object.keys(DATA.bonds).length, 'every bond, once');
   assert.ok(m.core.every((b) => b.isCore) && m.addon.every((b) => !b.isCore));
@@ -170,11 +170,11 @@ test('a real 标准 match (solo and co-op): the mode\'s 10 inactive bonds are "o
     assert.match(textOf(MatchLegend({ model: m })), /或本模式禁用/);
     h.m.dispose();
   }
-  // 绝境: 3 core + 4 add-on drawn, nothing switched off by the mode
+  // 绝境: 5 core + 5 add-on drawn, nothing switched off by the mode（2026-10-13: 自制核心盟约 +2 → 抽取数随总量放大）
   const h = makeMatch({ mode: 'coop', difficulty: 'HARD', humans: 1, bots: 1, seed: 4 }).start();
   const m = matchInfoModel(h.m.publicView(), SRC('mode_multi_hard'));
   assert.equal(m.sets.off.size, 0);
-  assert.deepEqual([m.core.filter((b) => m.stateOf(b.bondId)).length, m.addon.filter((b) => m.stateOf(b.bondId)).length], [3, 4]);
+  assert.deepEqual([m.core.filter((b) => m.stateOf(b.bondId)).length, m.addon.filter((b) => m.stateOf(b.bondId)).length], [5, 5]);
   assert.deepEqual([...m.banned].sort(), [...h.m.bannedChess].sort());
   h.m.dispose();
 });

@@ -14,7 +14,8 @@ import { makeMatch, checkInvariants, give, giveItem, legalTileFor, DATA } from '
 const soloBot = (o = {}) => makeMatch({ mode: 'solo', difficulty: 'NORMAL', seats: [{ seat: 0, playerId: 'ai_0', name: 'AI', isBot: true, connected: true }], ...o });
 
 test('user: Given a faction strategy teammate, When scoring shared high-tier chess, Then humans and bots receive the same preference even with full stock', () => {
-  const { m } = makeMatch({ humans: 3, seed: 11 }).start().toPrep();
+  // (seed 67: the per-tier bans shifted again on 2026-10-14 — seed 3's pool no longer holds 荒芜拉普兰德/铃兰)
+  const { m } = makeMatch({ humans: 3, seed: 67 }).start().toPrep();
   const [ps, mate, other] = m.order;
   try {
     mate.bandId = other.bandId = null;
@@ -332,7 +333,7 @@ test('economy: a held pair is completed — bought when affordable, else the sho
 
 test('坎诺特 (利滚利: leftover funds are kept, +1 at ≥ 5): with a full board the bot banks its interest capital instead of refreshing it away', () => {
   let checked = 0;
-  for (const seed of [5, 7, 9]) {
+  for (const seed of [5, 7, 9, 11, 13]) {  // (2026-10-12: 卡池 +5 改变了草稿流，多补两个种子凑满 ≥2 次 merge)
     const h = soloBot({ seed }).start();
     const m = h.m;
     const ps = m.order[0];
